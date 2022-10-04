@@ -1,6 +1,7 @@
 import {EventEmitter} from "node:events"
 import {Events, MESSENGER_URL} from '../data/MessengerConstants'
-import puppeteer, { Browser, Page, PageEventObject } from "puppeteer";
+import Chromium from "chrome-aws-lambda";
+import puppeteer, { Browser, Page, PageEventObject } from "puppeteer-core";
 
 interface loginCredentials {
     user : string,
@@ -27,7 +28,11 @@ class Messenger extends EventEmitter{
     }
 
     private async init(){
-        this.browser = await puppeteer.launch({headless: true});
+        this.browser = await puppeteer.launch({
+            args: Chromium.args,
+            headless: true,
+            executablePath: await Chromium.executablePath
+        });
         this.page = (await this.browser.pages())[0];
         await this.login()
         await this.page.waitForSelector('[data-testid="solid-message-bubble"]')
