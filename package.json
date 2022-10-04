@@ -5,7 +5,8 @@
   "main": "index.ts",
   "scripts": {
     "dev": "ts-node-dev index.ts",
-    "tsc": "tsc"
+    "tsc": "tsc",
+    "build" : "tsc --build"
   },
   "keywords": [],
   "author": "",
