@@ -31,7 +31,7 @@ class Messenger extends EventEmitter{
         this.browser = await Chromium.puppeteer.launch({
             args: Chromium.args,
             headless: true,
-            executablePath: await Chromium.executablePath
+            executablePath: process.env.CHROME_EXECUTABLE_PATH || await Chromium.executablePath
         });
         this.page = (await this.browser.pages())[0];
         await this.login()
