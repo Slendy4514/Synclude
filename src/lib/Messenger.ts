@@ -28,7 +28,7 @@ class Messenger extends EventEmitter{
     }
 
     private async init(){
-        this.browser = await puppeteer.launch({
+        this.browser = await Chromium.puppeteer.launch({
             args: Chromium.args,
             headless: true,
             executablePath: await Chromium.executablePath
