@@ -5,7 +5,7 @@ class Discord{
 	mainChannel : TextChannel | null
 	token : string
 	constructor(token : string){
-		this.client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent] })
+		this.client = new Client({ intents: [GatewayIntentBits.Guilds] })
 		this.mainChannel = null
 		this.token = token
 	}
