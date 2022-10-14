@@ -9,7 +9,7 @@ const messenger = new Messenger(Messenger.createCookies(
     process.env.C_USER as string
 ))
 
-messenger.on('message', (msg : any) => discord.send(msg.nick, msg.profilePic, msg.text, msg.img))
+messenger.on('message', (msg : any) => discord.send(msg.name, msg.profilePic, msg.text, msg.img))
 const prevUser : string = ''
 discord.client.on('messageCreate', async (msg) =>{
     if(!msg.author.bot){

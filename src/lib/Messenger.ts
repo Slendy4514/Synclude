@@ -27,10 +27,11 @@ class Messenger extends EventEmitter{
     }
 
     private async init(){
-        this.browser = await puppeteer.launch({headless: true});
+        this.browser = await puppeteer.launch({headless: false});
         this.page = (await this.browser.pages())[0];
         await this.login()
         await this.page.waitForSelector('[data-testid="solid-message-bubble"]')
+        //await this.page.waitForNavigation({waitUntil: 'domcontentloaded'});
         await this.send('Inicializando Synclude - Messenger')
         await this.page.exposeFunction('emit', (event : string, info : any) => this.emit(event, info))
         await this.initOnMessage()
@@ -48,18 +49,21 @@ class Messenger extends EventEmitter{
             const observer = new MutationObserver((mutationsList)=>{
                 for(let mutation of mutationsList){
                     const msg = mutation.addedNodes[0] as HTMLElement
-                    if(msg?.classList?.contains('__fb-light-mode')){
+                    if(msg?.classList?.contains('__fb-light-mode') && (msg as any)?.role == "row" && !(msg as any)?.syncId){
+                        (msg as any).syncId = 1
                         console.log(msg.querySelector('[data-testid="solid-message-bubble"]'))
-                        const profile = msg?.querySelector('img')?.src
+                        const profile : HTMLImageElement | null = msg?.querySelector('[aria-hidden] img')
                         if(!profile) continue
-                        nick = msg?.querySelector('span')?.textContent || nick
+                        nick = msg?.querySelector('[data-testid="mw_message_sender_name"]')?.textContent || nick
                         const img : HTMLImageElement | null = msg?.querySelector('[data-testid="message-container"] img')
                         const detail = {
                             nick,
-                            'profilePic' : profile,
+                            'profilePic' : profile?.src,
+                            'name' : profile?.alt,
                             'text' : msg.querySelector('[data-testid="solid-message-bubble"] [dir="auto"]')?.textContent,
                             'img' : img?.src,
                         }
+                        //msg.remove()
                         if(!detail.profilePic) continue //si la foto de perfil es undefined es enviado por nuestra cuenta
                         //const msgEvent = new CustomEvent(Events.MESSAGE_RECIVED, {detail})
                         (window as any).emit("message", detail)
@@ -73,10 +77,15 @@ class Messenger extends EventEmitter{
 
     private async login(){
         await this.page?.goto(MESSENGER_URL)
-        const cookies = (this.credentials as cookiesCredentials)
-        await this.page?.setCookie(this.parseCookie('xs', cookies.xs))
-        await this.page?.setCookie(this.parseCookie('c_user', cookies.c_user))
-        await this.page?.goto(MESSENGER_URL+process.env.MESSENGERCHAT)
+        const cookies : cookiesCredentials = (this.credentials as cookiesCredentials)
+        if(cookies.xs){
+            await this.page?.setCookie(this.parseCookie('xs', cookies.xs))
+            await this.page?.setCookie(this.parseCookie('c_user', cookies.c_user))
+            await this.page?.goto(MESSENGER_URL+process.env.MESSENGERCHAT)
+        }else{
+            const login : loginCredentials = (this.credentials as loginCredentials)
+
+        }
     }
 
     private parseCookie(name : string, value : string){
@@ -88,6 +97,7 @@ class Messenger extends EventEmitter{
     // }
 
     public async send(text : string){
+        await this.page?.waitForSelector('[data-lexical-editor="true"]')
         await this.page?.type('[data-lexical-editor="true"]', text)
         await this.page?.keyboard.press('Enter')
     }
