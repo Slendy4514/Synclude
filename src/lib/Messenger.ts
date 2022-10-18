@@ -49,13 +49,11 @@ class Messenger extends EventEmitter{
             const observer = new MutationObserver((mutationsList)=>{
                 for(let mutation of mutationsList){
                     const msg = mutation.addedNodes[0] as HTMLElement
-                    if(msg?.classList?.contains('__fb-light-mode') && (msg as any)?.role == "row" && !(msg as any)?.syncId){
-                        (msg as any).syncId = 1
-                        console.log(msg.querySelector('[data-testid="solid-message-bubble"]'))
+                    if(msg?.classList?.contains('__fb-light-mode') && (msg as any)?.role == "row"){
                         const profile : HTMLImageElement | null = msg?.querySelector('[aria-hidden] img')
                         if(!profile) continue
                         nick = msg?.querySelector('[data-testid="mw_message_sender_name"]')?.textContent || nick
-                        const img : HTMLImageElement | null = msg?.querySelector('[data-testid="message-container"] img')
+                        const img : HTMLImageElement | null = msg?.querySelector('[data-testid="message-container"] [alt="Abrir foto"]')
                         const detail = {
                             nick,
                             'profilePic' : profile?.src,
@@ -63,11 +61,8 @@ class Messenger extends EventEmitter{
                             'text' : msg.querySelector('[data-testid="solid-message-bubble"] [dir="auto"]')?.textContent,
                             'img' : img?.src,
                         }
-                        //msg.remove()
                         if(!detail.profilePic) continue //si la foto de perfil es undefined es enviado por nuestra cuenta
-                        //const msgEvent = new CustomEvent(Events.MESSAGE_RECIVED, {detail})
                         (window as any).emit("message", detail)
-                        //document.dispatchEvent(msgEvent)
                     }     
                 }
             })
@@ -96,10 +91,18 @@ class Messenger extends EventEmitter{
         
     // }
 
-    public async send(text : string){
+    private pendingMsgs : Promise<void>[] = []
+
+    
+    private sendMsg = async (text : string, prev? : Promise<void>) => {
+        prev && await prev
         await this.page?.waitForSelector('[data-lexical-editor="true"]')
         await this.page?.type('[data-lexical-editor="true"]', text)
         await this.page?.keyboard.press('Enter')
+    }
+
+    public async send(text : string){
+        this.pendingMsgs.push(this.sendMsg(text, this.pendingMsgs.pop()))
     }
 
     public close(){
