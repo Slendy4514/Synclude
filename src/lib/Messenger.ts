@@ -27,7 +27,10 @@ class Messenger extends EventEmitter{
     }
 
     private async init(){
-        this.browser = await puppeteer.launch({headless: true});
+        this.browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox']
+        });
         this.page = (await this.browser.pages())[0];
         await this.login()
         await this.page.waitForSelector('[data-testid="solid-message-bubble"]')
