@@ -27,12 +27,13 @@ class Messenger extends EventEmitter{
     }
 
     private async init(){
-        this.browser = await puppeteer.launch({headless: false});
+        this.browser = await puppeteer.launch({headless: true});
         this.page = (await this.browser.pages())[0];
         await this.login()
         await this.page.waitForSelector('[data-testid="solid-message-bubble"]')
         //await this.page.waitForNavigation({waitUntil: 'domcontentloaded'});
         await this.send('Inicializando Synclude - Messenger')
+        console.log('Inicializado')
         await this.page.exposeFunction('emit', (event : string, info : any) => this.emit(event, info))
         await this.initOnMessage()
     }
