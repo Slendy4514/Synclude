@@ -1,3 +1,5 @@
+import * as dotenv from 'dotenv'
+dotenv.config()
 import {EventEmitter} from "node:events"
 import {Events, MESSENGER_URL} from '../data/MessengerConstants'
 import puppeteer, { Browser, Page, PageEventObject, TimeoutError } from "puppeteer";
@@ -40,7 +42,7 @@ class Messenger extends EventEmitter{
 
     private async init(){
         this.browser = await puppeteer.launch({
-            headless: false,
+            headless: Boolean(process.env.HEADLESS as string),
             args: ['--no-sandbox'],
         });
         this.page = (await this.browser.pages())[0];
