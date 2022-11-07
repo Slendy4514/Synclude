@@ -45,6 +45,8 @@ class Messenger extends EventEmitter{
             headless: Boolean(process.env.HEADLESS as string),
             args: ['--no-sandbox'],
         });
+        let context = this.browser.defaultBrowserContext();
+        await context.overridePermissions(MESSENGER_URL, ['clipboard-read']);
         this.page = (await this.browser.pages())[0];
         this.page.setDefaultNavigationTimeout(120000)
         this.page.setDefaultTimeout(120000)
@@ -137,7 +139,6 @@ class Messenger extends EventEmitter{
         await this.page?.waitForSelector('[data-lexical-editor="true"]')
         await this.page?.click('[data-lexical-editor="true"]')
         await this.page?.evaluate((text) => navigator.clipboard.writeText(text), text)
-        //await this.page?.type('[data-lexical-editor="true"]', text)
         await this.page?.keyboard.down('Control')
         await this.page?.keyboard.down('Shift')
         await this.page?.keyboard.press('KeyV')
