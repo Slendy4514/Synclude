@@ -46,7 +46,7 @@ class Messenger extends EventEmitter{
             args: ['--no-sandbox'],
         });
         let context = this.browser.defaultBrowserContext();
-        await context.overridePermissions(MESSENGER_URL, ['clipboard-read']);
+        await context.overridePermissions(MESSENGER_URL, ['clipboard-read', 'clipboard-write']);
         this.page = (await this.browser.pages())[0];
         this.page.setDefaultNavigationTimeout(120000)
         this.page.setDefaultTimeout(120000)
