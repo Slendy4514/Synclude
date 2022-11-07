@@ -135,7 +135,7 @@ class Messenger extends EventEmitter{
     private sendMsg = async (text : string, prev? : Promise<void>) => {
         prev && await prev
         await this.page?.waitForSelector('[data-lexical-editor="true"]')
-        await this.page?.click('[data-lexical-editor="true"]')
+        //await this.page?.click('[data-lexical-editor="true"]')
         await this.page?.type('[data-lexical-editor="true"]', text)
         // await this.page?.evaluate((text) => navigator.clipboard.writeText(text), text)
         // await this.page?.keyboard.down('Control')
