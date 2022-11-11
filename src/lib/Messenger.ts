@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 import {EventEmitter} from "node:events"
 import {Events, MESSENGER_URL} from '../data/MessengerConstants'
-import puppeteer, { Browser, Page, PageEventObject, TimeoutError } from "puppeteer";
+import puppeteer, { Browser, ElementHandle, Page, PageEventObject, TimeoutError } from "puppeteer";
 
 interface loginCredentials {
     user : string,
@@ -45,6 +45,8 @@ class Messenger extends EventEmitter{
             headless: Boolean(process.env.HEADLESS as string),
             args: ['--no-sandbox'],
         });
+        let context = this.browser.defaultBrowserContext()
+        await context.overridePermissions(MESSENGER_URL, ["clipboard-read"]);
         this.page = (await this.browser.pages())[0];
         this.page.setDefaultNavigationTimeout(120000)
         this.page.setDefaultTimeout(120000)
@@ -114,11 +116,14 @@ class Messenger extends EventEmitter{
         if(cookies.xs){
             await this.page?.setCookie(this.parseCookie('xs', cookies.xs))
             await this.page?.setCookie(this.parseCookie('c_user', cookies.c_user))
-            await this.page?.goto(MESSENGER_URL+process.env.MESSENGERCHAT)
         }else{
             const login : loginCredentials = (this.credentials as loginCredentials)
-
+            await this.page?.type('#email', process.env.USER as string)
+            await this.page?.type('#pass', process.env.PASS as string)
+            await this.page?.click('#loginbutton')
+            await this.page?.waitForNavigation()
         }
+        await this.page?.goto(MESSENGER_URL+process.env.MESSENGERCHAT)
     }
 
     private parseCookie(name : string, value : string){
@@ -132,12 +137,11 @@ class Messenger extends EventEmitter{
     private pendingMsgs : Promise<void>[] = []
 
     
-    private sendMsg = async (text : string, prev? : Promise<void>) => {
+    private sendMsg = async (text : string, prev? : Promise<void>, img? : string) => {
         prev && await prev
         await this.page?.waitForSelector('[data-lexical-editor="true"]')
-        //await this.page?.click('[data-lexical-editor="true"]')
         await this.page?.type('[data-lexical-editor="true"]', text)
-        // await this.page?.evaluate((text) => navigator.clipboard.writeText(text), text)
+        // await this.page?.click('[data-lexical-editor="true"]')
         // await this.page?.keyboard.down('Control')
         // await this.page?.keyboard.down('Shift')
         // await this.page?.keyboard.press('KeyV')
@@ -146,8 +150,8 @@ class Messenger extends EventEmitter{
         await this.page?.keyboard.press('Enter')
     }
 
-    public async send(text : string){
-        this.pendingMsgs.push(this.sendMsg(text, this.pendingMsgs.pop()))
+    public async send(text : string, img? : string){
+        this.pendingMsgs.push(this.sendMsg(text, this.pendingMsgs.pop(), img))
     }
 
     public close(){
