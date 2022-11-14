@@ -28,11 +28,13 @@ discord.client.on('messageCreate', async (msg) =>{
 })
 discord.client.on(Events.MessageReactionAdd, async (reaction, user) => {
     const msg = reaction.message
+    if(excludes?.includes(msg.channelId)) return
     const content = msg.attachments?.first()?.url || msg?.embeds?.at(0)?.description || msg?.content || msg.embeds?.at(0)?.image?.url
     messenger.send(`> ${user.username} reaccionó ${reaction.emoji.name} a: ${content}`)
 })
 discord.client.on(Events.MessageReactionRemove, async (reaction, user) => {
     const msg = reaction.message
+    if(excludes?.includes(msg.channelId)) return
     const content = msg.attachments?.first()?.url || msg?.embeds?.at(0)?.description || msg?.content || msg.embeds?.at(0)?.image?.url
     messenger.send(`> ${user.username} removió la reacción "${reaction.emoji.name}" del mensaje: "${content}"`)
 })
