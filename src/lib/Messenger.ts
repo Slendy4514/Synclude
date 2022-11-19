@@ -84,14 +84,6 @@ class Messenger extends EventEmitter{
                         const sticker : string | null = (msg?.querySelector('[aria-label*="Sticker"]') as any)?.style?.backgroundImage
                         nick = msg?.querySelector('h4[dir="auto"]')?.textContent || nick
                         if(!profile) continue
-                        // (window as any).console({
-                        //     nick,
-                        //     'imgUrl' : img?.src,
-                        //     'profilePic' : profile?.src,
-                        //     'name' : profile?.alt,
-                        //     'text' : msg.querySelector('[role="none"] [dir="auto"]')?.textContent,
-                        //     'reply' : msg.querySelector('.xi81zsa.x126k92a')?.textContent
-                        // })
                         (window as any).emit("message", {
                             nick,
                             'imgUrl' : img?.src || sticker?.substring(5, sticker.length-2) || (msg?.querySelector('[height="32"]') as any)?.src,

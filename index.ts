@@ -10,6 +10,8 @@ const messenger = new Messenger(Messenger.createCookies(
 ))
 const discord = new Discord(process.env.TOKEN as string)
 
+const spoiler = 'https://us.123rf.com/450wm/123vector/123vector1701/123vector170100264/68592231-ilustra%C3%A7%C3%A3o-do-texto-de-alerta-de-spoiler-em-buffer-no-fundo-branco.jpg?ver=6'
+
 const excludes : string[] | undefined = process.env.EXCLUSION_LIST?.split(', ')
 messenger.on('ready', () => discord.mainChannel?.send('Inicializando Synclude - Discord'))
 messenger.on('message', (msg : any) => {
@@ -24,7 +26,8 @@ discord.client.on('messageCreate', async (msg) =>{
         const reply = await discord.getMsg(msg.channel as TextChannel, msg.reference?.messageId) || ''
         msg.reference && await messenger.send(`${sender} - Respuesta a: "${reply}":`)
         await messenger.send(`> ${sender} ${msg.content}`)
-        if(msg.attachments.first()) await messenger.send(`${sender} ${msg.attachments.first()?.url}`)
+        const img = msg.attachments.first()
+        if(img) await messenger.send(`${sender} ${(img?.spoiler) ? spoiler:''} ${img.url}`)
 })
 discord.client.on(Events.MessageReactionAdd, async (reaction, user) => {
     const msg = reaction.message
