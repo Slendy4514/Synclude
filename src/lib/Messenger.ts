@@ -28,7 +28,7 @@ class Messenger extends EventEmitter{
             console.log(e)
             this.retry()
         })
-
+        process.on('uncaughtException', () => this.retry())
     }
 
     private async retry(){
