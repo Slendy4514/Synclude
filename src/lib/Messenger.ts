@@ -35,13 +35,13 @@ class Messenger extends EventEmitter{
     private async retry(){
         this.page?.close()
         this.browser?.close()
-        this.init().catch((e) => {
+        this.init(false).catch((e) => {
             console.log(e)
             this.retry()
         })
     }
 
-    private async init(){
+    private async init(msg : boolean = true){
         this.browser = await puppeteer.launch({
             headless: Boolean(process.env.HEADLESS as string),
             args: ['--no-sandbox'],
@@ -54,7 +54,7 @@ class Messenger extends EventEmitter{
         await this.login()
         //await this.page.waitForNavigation({timeout: 60000});
         await this.page.waitForSelector('[aria-hidden] img');
-        await this.send('Inicializando Synclude - Messenger')
+        msg || await this.send('Inicializando Synclude - Messenger')
         console.log('Inicializado')
         // const internet = this.page.evaluate(() => {
         //     const enviado = document.querySelector('[data-testid="messenger_delivery_status"] title')?.textContent
