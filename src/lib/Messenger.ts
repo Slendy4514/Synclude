@@ -35,7 +35,7 @@ class Messenger extends EventEmitter{
     private async retry(){
         this.page?.close()
         this.browser?.close()
-        this.init(false).catch((e) => {
+        await this.init(false).catch((e) => {
             console.log(e)
             this.retry()
         })
