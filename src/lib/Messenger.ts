@@ -28,10 +28,10 @@ class Messenger extends EventEmitter{
             console.log(e)
             this.retry()
         })
-        process.on('uncaughtException', (e) => {
-            console.log(e)
-            this.retry()
-        })
+        // process.on('uncaughtException', (e) => {
+        //     console.log(e)
+        //     this.retry()
+        // })
     }
 
     private async retry(){
@@ -56,7 +56,7 @@ class Messenger extends EventEmitter{
         await this.login()
         //await this.page.waitForNavigation({timeout: 60000});
         await this.page.waitForSelector('[aria-hidden] img');
-        msg || await this.send('Inicializando Synclude - Messenger')
+        msg && await this.send('Inicializando Synclude - Messenger')
         console.log('Inicializado')
         // const internet = this.page.evaluate(() => {
         //     const enviado = document.querySelector('[data-testid="messenger_delivery_status"] title')?.textContent
